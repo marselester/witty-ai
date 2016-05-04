@@ -3,6 +3,7 @@ package witty
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -19,6 +20,8 @@ type Client struct {
 	BaseURL     string
 	AccessToken string
 	APIVersion  string
+
+	*chatService
 }
 
 // NewClient returns a new wit.ai API client. If a nil httpClient is
@@ -34,22 +37,17 @@ func NewClient(token string, httpClient *http.Client) *Client {
 		AccessToken: token,
 		APIVersion:  apiVersion,
 	}
+	c.chatService = &chatService{client: c}
 	return c
 }
 
 // NewRequest creates a request to the wit.ai API.
-func (c *Client) NewRequest(method, path string) (*http.Request, error) {
-	urlStr := fmt.Sprintf("%s/%s", c.BaseURL, path)
-	u, err := url.Parse(urlStr)
-	if err != nil {
-		return nil, err
-	}
+func (c *Client) NewRequest(method, path string, params *url.Values) (*http.Request, error) {
+	params.Set("v", c.APIVersion)
+	urlStr := fmt.Sprintf("%s/%s?%v", c.BaseURL, path, params.Encode())
+	log.Print(urlStr)
 
-	q := u.Query()
-	q.Set("v", c.APIVersion)
-	u.RawQuery = q.Encode()
-
-	req, err := http.NewRequest(method, u.String(), nil)
+	req, err := http.NewRequest(method, urlStr, nil)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.AccessToken)
 	return req, err
