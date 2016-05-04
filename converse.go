@@ -4,6 +4,8 @@ import (
 	"net/url"
 )
 
+type Context map[string]interface{}
+
 type BotNextStep struct {
 	Type       string
 	Msg        string
@@ -18,14 +20,14 @@ type chatService struct {
 }
 
 // Converse gets your bot's next step.
-func (s *chatService) Converse(sessID, msg string) (*BotNextStep, error) {
+func (s *chatService) Converse(sessID, msg string, ctx Context) (*BotNextStep, error) {
 	params := &url.Values{}
 	params.Set("session_id", sessID)
 	if msg != "" {
 		params.Set("q", msg)
 	}
 
-	req, err := s.client.NewRequest("POST", "converse", params)
+	req, err := s.client.NewRequest("POST", "converse", params, ctx)
 	if err != nil {
 		return nil, err
 	}

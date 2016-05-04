@@ -1,6 +1,7 @@
 package witty
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -42,14 +43,31 @@ func NewClient(token string, httpClient *http.Client) *Client {
 }
 
 // NewRequest creates a request to the wit.ai API.
-func (c *Client) NewRequest(method, path string, params *url.Values) (*http.Request, error) {
+// API path must not start with slash. Query string params are optional.
+// If specified, the value pointed to by body is JSON encoded and included
+// as the request body.
+func (c *Client) NewRequest(method, path string, params *url.Values, body interface{}) (*http.Request, error) {
 	params.Set("v", c.APIVersion)
 	urlStr := fmt.Sprintf("%s/%s?%v", c.BaseURL, path, params.Encode())
-	log.Print(urlStr)
 
-	req, err := http.NewRequest(method, urlStr, nil)
-	req.Header.Set("Accept", "application/json")
+	jsonBody := new(bytes.Buffer)
+	if body != nil {
+		err := json.NewEncoder(jsonBody).Encode(body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	log.Printf("%v %v body=%v", method, urlStr, jsonBody)
+
+	req, err := http.NewRequest(method, urlStr, jsonBody)
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Set("Authorization", "Bearer "+c.AccessToken)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
 	return req, err
 }
 
