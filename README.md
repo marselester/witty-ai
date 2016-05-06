@@ -1,11 +1,30 @@
 # [Wit.ai](https://wit.ai/) Go client
 
 Conversational app from Wit.ai [quick start](https://wit.ai/docs/quickstart).
+Try the console [example](https://github.com/marselester/witty-ai/#console-example).
 
 ```
 $ WITTY_TOKEN="<YOUR-TOKEN>" go run example.go
 > what's the weather?
 ```
+
+API is similar to [Python SDK](https://github.com/wit-ai/pywit). Basic actions
+are defined as
+
+```go
+ai := witty.NewClient(token, nil)
+ai.SayAct = say
+ai.MergeAct = merge
+ai.ErrorAct = err
+```
+
+custom actions are set in `ai.Actions` map
+
+```go
+ai.Actions["fetch-weather"] = fetchWeather
+```
+
+## Console example
 
 ```go
 package main
