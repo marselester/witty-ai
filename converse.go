@@ -81,7 +81,7 @@ func (s *chatService) RunActions(sessID, msg string, ctx Context) Context {
 }
 
 func DefaultSayAct(sessID string, ctx Context, msg string) {
-	fmt.Printf("> %v\n", msg)
+	fmt.Printf("💬  %v\n", msg)
 }
 
 func DefaultMergeAct(sessID string, ctx Context, entities Entities) Context {
