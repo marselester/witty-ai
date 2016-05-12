@@ -59,8 +59,8 @@ func main() {
 func merge(sessID string, ctx witty.Context, entities witty.Entities) witty.Context {
     // Retrieve the location entity and store it into a context field.
     if _, ok := entities["location"]; ok {
-        entry := entities["location"][0].(map[string]interface{})
-        ctx["loc"] = entry["value"]
+        v := entities["location"][0]["value"]
+        ctx["loc"] = v.(string)
     }
     return ctx
 }

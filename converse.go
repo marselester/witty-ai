@@ -8,7 +8,7 @@ import (
 
 type Context map[string]interface{}
 
-type Entities map[string][]interface{}
+type Entities map[string][]map[string]interface{}
 
 type BotNextStep struct {
 	Type       string
