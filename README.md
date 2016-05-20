@@ -15,7 +15,6 @@ are defined as
 ai := witty.NewClient(token, nil)
 ai.SayAct = say
 ai.MergeAct = merge
-ai.ErrorAct = err
 ```
 
 custom actions are set in `ai.Actions` map
@@ -33,6 +32,7 @@ import (
     "bufio"
     "fmt"
     "os"
+    "log"
 
     "github.com/marselester/witty-ai"
 )
@@ -46,12 +46,16 @@ func main() {
 
     sessID := "my-session-id"
     ctx := witty.Context{}
+    var err error
 
     fmt.Print("> ")
     input := bufio.NewScanner(os.Stdin)
     for input.Scan() {
         userMsg := input.Text()
-        ctx = ai.RunActions(sessID, userMsg, ctx)
+        ctx, err = ai.RunActions(sessID, userMsg, ctx)
+        if err != nil {
+            log.Fatal(err)
+        }
         fmt.Print("> ")
     }
 }
@@ -59,8 +63,7 @@ func main() {
 func merge(sessID string, ctx witty.Context, entities witty.Entities) witty.Context {
     // Retrieve the location entity and store it into a context field.
     if _, ok := entities["location"]; ok {
-        v := entities["location"][0]["value"]
-        ctx["loc"] = v.(string)
+        ctx["loc"] = entities["location"][0]["value"]
     }
     return ctx
 }

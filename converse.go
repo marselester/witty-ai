@@ -45,15 +45,16 @@ func (s *chatService) Converse(sessID, msg string, ctx Context) (*BotNextStep, e
 	return v, nil
 }
 
-func (s *chatService) RunActions(sessID, msg string, ctx Context) Context {
+func (s *chatService) RunActions(sessID, msg string, ctx Context) (Context, error) {
 	step, err := s.Converse(sessID, msg, ctx)
 	if err != nil {
-		log.Fatal(err)
+		return ctx, err
 	}
 
 	switch step.Type {
 	case "stop":
-		return ctx
+		log.Print("Executing stop")
+		return ctx, nil
 
 	case "msg":
 		log.Printf("Executing say %q", step.Msg)
@@ -64,17 +65,20 @@ func (s *chatService) RunActions(sessID, msg string, ctx Context) Context {
 		ctx = s.client.MergeAct(sessID, ctx, step.Entities)
 
 	case "action":
-		log.Printf("Executing action %q", step.Action)
 		if action, ok := s.client.Actions[step.Action]; ok {
+			log.Printf("Executing action %q", step.Action)
 			ctx = action(sessID, ctx)
+		} else {
+			log.Printf("Executing action %q: not found", step.Action)
 		}
 
 	case "error":
 		log.Print("Executing error")
-		s.client.ErrorAct(sessID, ctx, "oops")
+		return ctx, ErrWitStep
 
 	default:
-		log.Print("Unknown type")
+		log.Print("Unknown type %q", step.Type)
+		return ctx, ErrUnkownStep
 	}
 
 	return s.RunActions(sessID, "", ctx)
@@ -86,8 +90,4 @@ func DefaultSayAct(sessID string, ctx Context, msg string) {
 
 func DefaultMergeAct(sessID string, ctx Context, entities Entities) Context {
 	return ctx
-}
-
-func DefaultErrorAct(sessID string, ctx Context, msg string) {
-	fmt.Printf("Bot error: %v", msg)
 }

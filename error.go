@@ -2,9 +2,16 @@ package witty
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+)
+
+// Wit.ai converse errors.
+var (
+	ErrWitStep    = errors.New("I don't know what to do")
+	ErrUnkownStep = errors.New("unknown wit.ai step")
 )
 
 // ErrorResponse reports one or more errors caused by an API request.

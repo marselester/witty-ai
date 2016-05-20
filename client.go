@@ -23,7 +23,6 @@ type Client struct {
 
 	SayAct   func(sessID string, ctx Context, msg string)
 	MergeAct func(sessID string, ctx Context, entities Entities) Context
-	ErrorAct func(sessID string, ctx Context, msg string)
 	Actions  map[string]func(sessID string, ctx Context) Context
 
 	*chatService
@@ -44,7 +43,6 @@ func NewClient(token string, httpClient *http.Client) *Client {
 
 		SayAct:   DefaultSayAct,
 		MergeAct: DefaultMergeAct,
-		ErrorAct: DefaultErrorAct,
 		Actions:  make(map[string]func(sessID string, ctx Context) Context),
 	}
 	c.chatService = &chatService{client: c}
