@@ -12,6 +12,7 @@ import (
 var (
 	ErrWitStep    = errors.New("I don't know what to do")
 	ErrUnkownStep = errors.New("unknown wit.ai step")
+	ErrMaxSteps   = errors.New("max iterations reached")
 )
 
 // ErrorResponse reports one or more errors caused by an API request.

@@ -46,13 +46,14 @@ func main() {
 
     sessID := "my-session-id"
     ctx := witty.Context{}
+    maxSteps := 5
     var err error
 
     fmt.Print("> ")
     input := bufio.NewScanner(os.Stdin)
     for input.Scan() {
         userMsg := input.Text()
-        ctx, err = ai.RunActions(sessID, userMsg, ctx)
+        ctx, err = ai.RunActions(sessID, userMsg, ctx, maxSteps)
         if err != nil {
             log.Fatal(err)
         }

@@ -45,7 +45,11 @@ func (s *chatService) Converse(sessID, msg string, ctx Context) (*BotNextStep, e
 	return v, nil
 }
 
-func (s *chatService) RunActions(sessID, msg string, ctx Context) (Context, error) {
+func (s *chatService) RunActions(sessID, msg string, ctx Context, maxSteps int) (Context, error) {
+	if maxSteps <= 0 {
+		return ctx, ErrMaxSteps
+	}
+
 	step, err := s.Converse(sessID, msg, ctx)
 	if err != nil {
 		return ctx, err
@@ -77,11 +81,11 @@ func (s *chatService) RunActions(sessID, msg string, ctx Context) (Context, erro
 		return ctx, ErrWitStep
 
 	default:
-		log.Print("Unknown type %q", step.Type)
+		log.Printf("Unknown type %q", step.Type)
 		return ctx, ErrUnkownStep
 	}
 
-	return s.RunActions(sessID, "", ctx)
+	return s.RunActions(sessID, "", ctx, maxSteps-1)
 }
 
 func DefaultSayAct(sessID string, ctx Context, msg string) {
